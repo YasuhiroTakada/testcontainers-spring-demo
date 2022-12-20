@@ -1,7 +1,7 @@
 version: '3'
 services:
   postgres:
-    image: postgres:11.10-alpine
+    image: postgres:15-bullseye
     # 任意のパスワード
     environment:
       POSTGRES_DB: main
@@ -9,7 +9,19 @@ services:
       POSTGRES_PASSWORD: password
     # ホスト側は任意のディレクトリ
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - ./data/postgresql:/var/lib/postgresql/data
     # ホスト側は任意のポート
     ports:
-      - 5432:5432
+      - "5432:5432"
+
+  app:
+    build: .
+    environment:
+      spring.profiles.active: local
+      spring.datasource.url: jdbc:postgresql://postgres:5432/main
+    volumes:
+      - ./config:/config
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
